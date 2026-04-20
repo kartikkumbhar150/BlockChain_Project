@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { uploadMetadataToIPFS } from '../services/ipfsService';
-import './workers/mintWorker';
+import '../workers/mintWorker';
 
 const credentialsRouter = Router();
 const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
