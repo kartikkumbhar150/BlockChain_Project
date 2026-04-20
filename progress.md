@@ -71,9 +71,17 @@ This project is a multi-tenant B2B SaaS platform that abstracts blockchain compl
 - **Pending:** Run `prisma db push` to synchronize local backend state.
 - **Pending:** Run full end-to-end Issue -> Verifier flow testing.
 
+### ✅ Step 6: Backend Worker & Services Pipeline
+- **Status: COMPLETED**
+- Scaffolded `walletService.ts` to integrate institution key loading.
+- Scaffolded `ipfsService.ts` connecting cleanly to the Pinata Cloud APIs.
+- Implemented `mintWorker.ts` mapping BullMQ job processing to interact directly with Ethers.js + OpenZeppelin Smart Contract bindings, submitting Mint functions and extracting logs.
+- Initialized worker mappings within `index.ts` so workers run independently on the background thread of the Express API.
+
 ## Future Phases Pipeline
 
 - **Phase 1: Smart Contract Audit & Tests** - Achieve 100% test coverage before executing Mainnet production launches.
-- **Phase 2: Authentication & BullMQ processing** - Connect background BullMQ consumers locally for immediate mint fulfillment upon HTTP POSTs. 
-- **Phase 3: Key Custody & Wallet strategy** - AES-256-GCM SDK bindings connecting to AWS Secrets Manager configurations.
-- **Phase 4...**: Remaining Web Application features (Dashboards, API Key Generation UI, Analytics pages).
+- **Phase 2: Authentication & Rate Limiting** - API Auth + Bearer generation, mapping `req.institution`.
+- **Phase 3: Key Custody optimizations** - Full AES-256-GCM SDK bindings connecting to AWS Secrets Manager configurations.
+- **Phase 4: Web Hooks** - Firing 'credential.minted' to webhook endpoints.
+- **Phase 5...**: Remaining Web Application features (Dashboards, API Key Generation UI, Analytics pages).

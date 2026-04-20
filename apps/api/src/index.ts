@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import { credentialsRouter } from './routes/credentials';
 import { verifyRouter } from './routes/verify';
 import { errorHandler } from './middleware/errorHandler';
+// Import workers to run alongside the Express API for POC
+import './workers/mintWorker';
+
 // import { authRouter } from './routes/auth';
 // import { institutionsRouter } from './routes/institutions';
 // import { templatesRouter } from './routes/templates';

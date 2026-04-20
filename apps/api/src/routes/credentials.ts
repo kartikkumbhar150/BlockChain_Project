@@ -2,8 +2,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { Queue } from 'bullmq';
-// Assuming local connection for BullMQ
 import Redis from 'ioredis';
+import { uploadMetadataToIPFS } from '../services/ipfsService';
+import './workers/mintWorker';
 
 const credentialsRouter = Router();
 const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -48,6 +49,20 @@ credentialsRouter.post('/issue', async (req, res, next) => {
         status: 'PENDING',
         templateId: body.templateId
       }
+    });
+
+    // Upload to IPFS asynchronously or synchronously. Sync is easier for mapping CID:
+    const ipfsCid = await uploadMetadataToIPFS({
+      recipientName: body.recipientName,
+      credentialType: body.credentialType,
+      achievement: body.achievement,
+      description: body.description || ""
+    });
+
+    // Update with CID
+    await prisma.credential.update({
+      where: { id: credential.id },
+      data: { metadataIpfsCid: ipfsCid }
     });
 
     // Enqueue mint job
