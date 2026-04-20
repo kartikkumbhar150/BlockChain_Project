@@ -1,0 +1,79 @@
+# Tamper-Proof Credential API — Progress Report
+
+## Executive Summary
+This project is a multi-tenant B2B SaaS platform that abstracts blockchain complexity behind a clean REST API. It allows institutions to make a single API call to handle wallet management, smart contract interaction, IPFS metadata pinning, and verification link generation. Employers can verify credentials instantly via a URL or QR scan.
+
+## Detailed Project Structure
+
+```text
+/ (Monorepo Root)
+├── apps/
+│   ├── api/                    ← Express + TypeScript backend
+│   │   ├── src/
+│   │   │   ├── routes/         ← auth.ts, credentials.ts, templates.ts, institutions.ts, verify.ts
+│   │   │   ├── services/       ← credentialService, mintService, walletService, ipfsService, verifyService
+│   │   │   ├── workers/        ← mintWorker, batchWorker
+│   │   │   ├── middleware/     ← apiKeyAuth, rateLimiter, errorHandler
+│   │   │   └── lib/            ← prisma.ts (Neon DB), queue.ts (BullMQ), blockchain.ts
+│   │   └── prisma/
+│   │       └── schema.prisma   ← Database schema mapping
+│   │
+│   └── web/                    ← React + TypeScript frontend (Vite)
+│       └── src/
+│           ├── pages/          ← dashboard, credentials, templates, analytics, settings, verify
+│           ├── components/     ← shadcn/ui and custom components
+│           ├── hooks/          ← TanStack Query hooks
+│           ├── store/          ← Zustand state management
+│           └── lib/            ← api.ts typed fetch wrapper
+│
+└── packages/
+    ├── contracts/              ← Solidity + Hardhat
+    │   ├── contracts/
+    │   │   ├── CredentialSBT.sol      ← Soulbound Token Contract
+    │   │   └── CredentialRegistry.sol ← Factory Contract
+    │   └── test/
+    │
+    └── sdk/                    ← Node.js + Python SDKs
+```
+
+## Immediate First Steps & Progress
+
+### ✅ Step 1: Monorepo Foundation
+- **Status: COMPLETED**
+- Initialized root monorepo directory.
+- Scaffolded root `package.json` with npm workspaces configuration (`apps/*`, `packages/*`).
+- Created standardized mono-repo `.gitignore`.
+
+### ✅ Step 2: Smart Contracts (`packages/contracts`)
+- **Status: COMPLETED**
+- Configured Hardhat with standard types and compilation settings targeting Polygon Amoy.
+- Implemented `IERC5192.sol` ensuring EIP-5192 standard compliance.
+- Implemented `CredentialSBT.sol` logic holding UUPS upgradeable, pausing capabilities, locking functionality, and token metadata IPFS references.
+
+### ✅ Step 3: Database & API Backend (`apps/api`)
+- **Status: COMPLETED**
+- Scaffolded the Express backend architecture inside `apps/api/src`.
+- Setup Prisma ORM with the complete specified models (`Institution`, `Credential`, `VerificationEvent`, etc.) utilizing the `@neondatabase/serverless` driver.
+- Built initial routing paths (`/v1/credentials` with Zod validation hooks and `/v1/public/verify/:code`).
+- Configured Error Handling middleware and API application initialization.
+
+### ✅ Step 4: React Application & Verifier (`apps/web`)
+- **Status: COMPLETED**
+- Generated Vite + React + TypeScript base configuration.
+- Installed frontend dependencies: Tailwind CSS, React Router, TanStack Query, Zustand, Lucide-React.
+- Initialized core Global CSS mapping tailored for Shadcn (dark/light themes).
+- Created a fully responsive UI in `pages/verify/index.tsx` mapping to backend verification route states and conditional blockchain data proofs.
+
+### ⏳ Step 5: Integration & First Run
+- **Status: IN PROGRESS**
+- Created `.env.example` templates outlining the variables necessary for each tier (`DATABASE_URL`, `PINATA_API_KEY`, Endpoints, Private Keys).
+- **Pending:** Populate `.env` with actual DB strings and IPFS keys.
+- **Pending:** Run `prisma db push` to synchronize local backend state.
+- **Pending:** Run full end-to-end Issue -> Verifier flow testing.
+
+## Future Phases Pipeline
+
+- **Phase 1: Smart Contract Audit & Tests** - Achieve 100% test coverage before executing Mainnet production launches.
+- **Phase 2: Authentication & BullMQ processing** - Connect background BullMQ consumers locally for immediate mint fulfillment upon HTTP POSTs. 
+- **Phase 3: Key Custody & Wallet strategy** - AES-256-GCM SDK bindings connecting to AWS Secrets Manager configurations.
+- **Phase 4...**: Remaining Web Application features (Dashboards, API Key Generation UI, Analytics pages).
