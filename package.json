@@ -1,0 +1,15 @@
+{
+  "name": "credential-monorepo",
+  "version": "1.0.0",
+  "description": "Tamper-Proof Credential API Monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build:contracts": "npm run build -w packages/contracts"
+  }
+}
