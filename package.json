@@ -1,15 +1,18 @@
 {
-  "name": "credential-monorepo",
+  "name": "tamperproof-credential-api",
   "version": "1.0.0",
-  "description": "Tamper-Proof Credential API Monorepo",
+  "description": "Tamper-Proof Credential API — Blockchain SBT Platform",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "frontend",
+    "backend"
   ],
   "scripts": {
-    "dev:api": "npm run dev -w apps/api",
-    "dev:web": "npm run dev -w apps/web",
-    "build:contracts": "npm run build -w packages/contracts"
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend",
+    "build:frontend": "npm run build -w frontend",
+    "build:backend": "npm run build -w backend",
+    "db:push": "npm run db:push -w backend",
+    "db:generate": "npm run db:generate -w backend"
   }
 }
