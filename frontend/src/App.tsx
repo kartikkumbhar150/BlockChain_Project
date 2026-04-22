@@ -9,6 +9,7 @@ import CredentialsListPage from './pages/credentials/CredentialsListPage';
 import IssueCredentialPage from './pages/credentials/IssueCredentialPage';
 import VerifyPage from './pages/verify/VerifyPage';
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: 1, staleTime: 30_000 },

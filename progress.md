@@ -3,21 +3,9 @@
 ## Executive Summary
 This project is a multi-tenant B2B SaaS platform that abstracts blockchain complexity behind a clean REST API. It allows institutions to make a single API call to handle wallet management, smart contract interaction, IPFS metadata pinning, and verification link generation. Employers can verify credentials instantly via a URL or QR scan.
 
-## Detailed Project Structure
+## Detailed Project Structure (Refactored)
 
 ```text
-/ (Monorepo Root)
-├── apps/
-│   ├── api/                    ← Express + TypeScript backend
-│   │   ├── src/
-│   │   │   ├── routes/         ← auth.ts, credentials.ts, templates.ts, institutions.ts, verify.ts
-│   │   │   ├── services/       ← credentialService, mintService, walletService, ipfsService, verifyService
-│   │   │   ├── workers/        ← mintWorker, batchWorker
-│   │   │   ├── middleware/     ← apiKeyAuth, rateLimiter, errorHandler
-│   │   │   └── lib/            ← prisma.ts (Neon DB), queue.ts (BullMQ), blockchain.ts
-│   │   └── prisma/
-│   │       └── schema.prisma   ← Database schema mapping
-│   │
 │   └── web/                    ← React + TypeScript frontend (Vite)
 │       └── src/
 │           ├── pages/          ← dashboard, credentials, templates, analytics, settings, verify

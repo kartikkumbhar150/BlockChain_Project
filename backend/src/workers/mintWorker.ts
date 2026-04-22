@@ -2,13 +2,16 @@ import { Worker, Job } from 'bullmq';
 import { ethers } from 'ethers';
 import { prisma } from '../lib/prisma';
 import { getInstitutionWallet } from '../services/walletService';
-import { getRedis } from '../lib/queue';
+import { getRedis, isRedisAvailable } from '../lib/queue';
 
-// Start worker only if Redis is available
 let workerStarted = false;
 
 export function startMintWorker() {
   if (workerStarted) return;
+  if (!isRedisAvailable()) {
+    console.warn('[MintWorker] Redis unavailable — worker not started');
+    return;
+  }
 
   try {
     const connection = getRedis();
@@ -30,7 +33,6 @@ export function startMintWorker() {
       try {
         const providerUrl = process.env.POLYGON_AMOY_RPC_URL || 'https://rpc-amoy.polygon.technology/';
         const provider = new ethers.JsonRpcProvider(providerUrl);
-
         const wallet = await getInstitutionWallet(credential.institution.walletKeyRef || '');
         const signer = wallet.connect(provider);
 
@@ -38,7 +40,6 @@ export function startMintWorker() {
           throw new Error('Institution has no deployed contract');
         }
 
-        // Simplified ABI for the mint function
         const abi = [
           'function mint(address recipient, tuple(string recipientName, string credentialType, string achievement, uint256 issuedAt, uint256 expiresAt, string metadataURI, bytes32 batchId) data) returns (uint256)',
         ];
@@ -53,27 +54,23 @@ export function startMintWorker() {
             achievement: credential.achievement,
             issuedAt: Math.floor(new Date(credential.issuedAt).getTime() / 1000),
             expiresAt: credential.expiresAt
-              ? Math.floor(new Date(credential.expiresAt).getTime() / 1000)
-              : 0,
+              ? Math.floor(new Date(credential.expiresAt).getTime() / 1000) : 0,
             metadataURI: credential.metadataIpfsCid || '',
             batchId: credential.batchId
-              ? ethers.encodeBytes32String(credential.batchId)
-              : ethers.ZeroHash,
+              ? ethers.encodeBytes32String(credential.batchId) : ethers.ZeroHash,
           }
         );
 
-        console.log(`[MintWorker] TX submitted: ${tx.hash}`);
         const receipt = await tx.wait();
-        console.log(`[MintWorker] TX confirmed block ${receipt.blockNumber}`);
 
         await prisma.credential.update({
           where: { id: credentialId },
           data: { status: 'MINTED', txHash: receipt.hash },
         });
 
-        console.log(`[MintWorker] Credential ${credentialId} minted successfully`);
+        console.log(`[MintWorker] ✓ Credential ${credentialId} minted`);
       } catch (error: any) {
-        console.error(`[MintWorker] Mint failed: ${error.message}`);
+        console.error(`[MintWorker] ✗ Mint failed: ${error.message}`);
         await prisma.credential.update({
           where: { id: credentialId },
           data: { status: 'FAILED' },
@@ -87,8 +84,8 @@ export function startMintWorker() {
     });
 
     workerStarted = true;
-    console.log('[MintWorker] Started and listening for jobs');
+    console.log('[MintWorker] ✓ Started and listening');
   } catch (err: any) {
-    console.warn(`[MintWorker] Could not start (Redis down?): ${err.message}`);
+    console.warn(`[MintWorker] Could not start: ${err.message}`);
   }
 }

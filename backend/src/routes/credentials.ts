@@ -58,7 +58,11 @@ router.post('/issue', apiRateLimiter, apiKeyAuth(['credential:issue']), async (r
     // Enqueue mint job (graceful — if Redis is down, credential stays PENDING)
     try {
       const queue = getMintQueue();
-      await queue.add('mint-credential', { credentialId: credential.id });
+      if (queue) {
+        await queue.add('mint-credential', { credentialId: credential.id });
+      } else {
+        console.warn('[Credentials] Redis unavailable, mint job not queued. Credential remains PENDING.');
+      }
     } catch (err) {
       console.warn('[Credentials] Failed to enqueue mint job (Redis down?). Credential stays PENDING.');
     }
@@ -109,7 +113,11 @@ router.post('/issue-dashboard', jwtAuth, async (req: AuthRequest, res, next) => 
 
     try {
       const queue = getMintQueue();
-      await queue.add('mint-credential', { credentialId: credential.id });
+      if (queue) {
+        await queue.add('mint-credential', { credentialId: credential.id });
+      } else {
+        console.warn('[Credentials] Redis unavailable, mint job not queued.');
+      }
     } catch {
       console.warn('[Credentials] Redis unavailable, mint job not queued.');
     }
